@@ -1,14 +1,14 @@
-package com.example.BookManager.service;
+package com.example.BookManager.service.book;
 
 import com.example.BookManager.dto.requests.CreateBookRequest;
 import com.example.BookManager.dto.requests.UpdateBookRequest;
 import com.example.BookManager.entity.books;
 import com.example.BookManager.entity.categories;
 import com.example.BookManager.repository.BookRepository;
+import com.example.BookManager.service.category.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.awt.print.Book;
 import java.util.List;
 
 @Service

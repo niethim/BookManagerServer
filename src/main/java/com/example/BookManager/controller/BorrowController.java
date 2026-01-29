@@ -3,7 +3,7 @@ package com.example.BookManager.controller;
 import com.example.BookManager.dto.requests.CreateBorrowRequest;
 import com.example.BookManager.dto.requests.DeleteBorrowRequest;
 import com.example.BookManager.entity.borrows;
-import com.example.BookManager.service.BorrowService;
+import com.example.BookManager.service.borrow.BorrowService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

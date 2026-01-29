@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/BookManager
-    username: postgres
-    password: vominhtien
+    url: ${DEV_DATABASE_URL:jdbc:postgresql://localhost:5432/BookManager}
+    username: ${DEV_DATABASE_USERNAME:postgres}
+    password: ${DEV_DATABASE_PASSWORD:postgres123}
     driver-class-name: org.postgresql.Driver
 
   jpa:

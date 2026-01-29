@@ -2,8 +2,8 @@ package com.example.BookManager.controller;
 
 import com.example.BookManager.dto.requests.AuthUserRequest;
 import com.example.BookManager.entity.users;
-import com.example.BookManager.service.AuthService;
-import com.example.BookManager.service.UserService;
+import com.example.BookManager.service.auth.AuthService;
+import com.example.BookManager.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

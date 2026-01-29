@@ -1,4 +1,4 @@
-package com.example.BookManager.service;
+package com.example.BookManager.service.auth;
 
 import com.example.BookManager.dto.requests.AuthUserRequest;
 import com.example.BookManager.entity.users;

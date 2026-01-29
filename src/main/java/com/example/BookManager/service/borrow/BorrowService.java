@@ -1,4 +1,4 @@
-package com.example.BookManager.service;
+package com.example.BookManager.service.borrow;
 
 import com.example.BookManager.dto.requests.CreateBorrowRequest;
 import com.example.BookManager.dto.requests.DeleteBorrowRequest;
@@ -7,6 +7,8 @@ import com.example.BookManager.entity.borrows;
 import com.example.BookManager.entity.users;
 import com.example.BookManager.entity.borrowID;
 import com.example.BookManager.repository.BorrowRepository;
+import com.example.BookManager.service.user.UserService;
+import com.example.BookManager.service.book.BookService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

@@ -1,4 +1,4 @@
-package com.example.BookManager.service;
+package com.example.BookManager.service.favbook;
 
 import com.example.BookManager.dto.requests.CreateFavbookRequest;
 import com.example.BookManager.entity.books;
@@ -6,6 +6,8 @@ import com.example.BookManager.entity.favID;
 import com.example.BookManager.entity.favouritebooks;
 import com.example.BookManager.entity.users;
 import com.example.BookManager.repository.FavBookRepository;
+import com.example.BookManager.service.user.UserService;
+import com.example.BookManager.service.book.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -4,10 +4,8 @@ import com.example.BookManager.dto.requests.CreateBookRequest;
 import com.example.BookManager.dto.requests.UpdateBookRequest;
 import com.example.BookManager.dto.responses.ApiResponse;
 import com.example.BookManager.entity.books;
-import com.example.BookManager.service.BookService;
+import com.example.BookManager.service.book.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,7 +15,6 @@ import java.util.List;
 public class BookController  {
     @Autowired
     private BookService bookService;
-
     @PostMapping()
     ApiResponse<books> createBook(@RequestBody CreateBookRequest request)
     {

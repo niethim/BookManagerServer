@@ -1,4 +1,4 @@
-package com.example.BookManager.service;
+package com.example.BookManager.service.category;
 
 import com.example.BookManager.dto.requests.CreateCategoryRequest;
 import com.example.BookManager.entity.categories;

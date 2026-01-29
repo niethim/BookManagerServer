@@ -11,7 +11,7 @@ public interface BookRepository extends JpaRepository<books, Long> {
     @Query(
         """
         select count(distinct bookId)
-        from books    
+        from books
         """
     )
     long getNumberOfAddedBook();

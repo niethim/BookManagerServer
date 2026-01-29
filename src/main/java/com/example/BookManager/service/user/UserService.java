@@ -1,4 +1,4 @@
-package com.example.BookManager.service;
+package com.example.BookManager.service.user;
 
 import com.example.BookManager.dto.requests.CreateUserRequest;
 import com.example.BookManager.entity.users;
