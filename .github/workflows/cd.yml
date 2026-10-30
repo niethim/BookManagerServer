@@ -104,13 +104,22 @@ jobs:
           echo "$SSH_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
 
+          cat << SSHEOF > ~/.ssh/config
+          Host home_j6
+              HostName $HOST
+              User u0_a218
+              Port 8022
+              IdentityFile ~/.ssh/id_ed25519
+              StrictHostKeyChecking no
+          SSHEOF
+
           JAR_FILE=$(ls *.jar | head -n 1)
 
           # Copy compiled JAR to phone
-          scp -o StrictHostKeyChecking=no -P 8022 "$JAR_FILE" u0_a218@$HOST:~/app.jar
+          scp "$JAR_FILE" home_j6:~/app.jar
 
           # Restart app on home_j6 (using bash to ensure shell compatibility)
-          ssh -o StrictHostKeyChecking=no -P 8022 u0_a218@$HOST "bash -s" << EOF
+          ssh home_j6 "bash -s" << EOF
             # Stop existing process if running
             pkill -f 'app.jar' || true
             sleep 2
