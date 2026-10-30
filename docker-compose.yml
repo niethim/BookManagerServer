@@ -1,10 +1,13 @@
 services:
-  app:
-    image: bookmanager-api:1.0
-    container_name: bookmanager
-    ports:
-      - "8081:8080"
+  postgres:
+    image: docker.io/library/postgres:16-alpine
+    container_name: book-postgres
+    restart: unless-stopped
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/BookManager
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: vominhtien
+      POSTGRES_DB: ${POSTGRES_DB:-book_manager}
+      POSTGRES_USER: ${POSTGRES_USER:-book_manager}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-book_manager}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
