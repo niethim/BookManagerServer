@@ -1,0 +1,128 @@
+name: CD
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+concurrency:
+  group: cd-bookmanagerserver
+  cancel-in-progress: true
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-package:
+    name: Build JAR & Push Container Image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          java-version: "25"
+          distribution: "temurin"
+          cache: maven
+
+      - name: Grant execute permission for mvnw
+        run: |
+          sed -i 's/\r$//' mvnw
+          chmod +x mvnw
+
+      - name: Build JAR with Maven
+        run: ./mvnw clean package -DskipTests -B
+
+      - name: Upload JAR Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-jar
+          path: target/*.jar
+          retention-days: 1
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Format image name to lowercase
+        run: |
+          echo "IMAGE_NAME_LOWER=${IMAGE_NAME,,}" >> "$GITHUB_ENV"
+
+      - name: Build and push image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}:${{ github.sha }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}:latest
+
+  deploy:
+    name: Deploy to home_j6
+    needs: [build-and-package]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v3
+        with:
+          authkey: ${{ secrets.TAILSCALE_AUTH_KEY }}
+
+      - name: Download built JAR
+        uses: actions/download-artifact@v4
+        with:
+          name: app-jar
+
+      - name: Deploy and restart on home_j6
+        env:
+          SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          HOST: ${{ secrets.HOST_IP }}
+          DB_URL: ${{ secrets.DEV_DATABASE_URL }}
+          DB_USER: ${{ secrets.DEV_DATABASE_USERNAME }}
+          DB_PASS: ${{ secrets.DEV_DATABASE_PASSWORD }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+
+          JAR_FILE=$(ls *.jar | head -n 1)
+
+          # Copy compiled JAR to phone
+          scp -o StrictHostKeyChecking=no -P 8022 "$JAR_FILE" u0_a218@$HOST:~/app.jar
+
+          # Restart app on home_j6 (using bash to ensure shell compatibility)
+          ssh -o StrictHostKeyChecking=no -P 8022 u0_a218@$HOST "bash -s" << EOF
+            # Stop existing process if running
+            pkill -f 'app.jar' || true
+            sleep 2
+
+            # Launch with low-memory config suitable for phone
+            nohup env \
+              DEV_DATABASE_URL="\${DB_URL:-jdbc:postgresql://localhost:5432/BookManager}" \
+              DEV_DATABASE_USERNAME="\${DB_USER:-postgres}" \
+              DEV_DATABASE_PASSWORD="\${DB_PASS:-postgres123}" \
+              java -Xms128m -Xmx384m -jar ~/app.jar > ~/app.log 2>&1 &
+
+            sleep 3
+            echo "Deployment complete. Process status:"
+            pgrep -l -f 'app.jar' || (echo "Startup warning - check ~/app.log" && tail -n 20 ~/app.log)
+          EOF
